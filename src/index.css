@@ -1,0 +1,303 @@
+:root {
+  --bg-base: #000000;
+  --bg-surface: #121212;
+  --bg-elevated: #282828;
+  --bg-highlight: #333333;
+
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+
+  --brand-primary: #1db954;
+  --brand-hover: #1ed760;
+
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 10px;
+
+  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 50%
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100%;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 1fr 90px;
+  height: 100vh;
+  background-color: var(--bg-base);
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 90px 60px;
+    /* Main, Player, Bottom Nav */
+  }
+}
+
+.sidebar {
+  background-color: var(--bg-base);
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  border-right: 1px solid var(--glass-border);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+    /* Hide sidebar on mobile, use bottom nav */
+  }
+}
+
+.main-view {
+  background: linear-gradient(180deg, #222 0%, var(--bg-surface) 100%);
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  position: relative;
+}
+
+.player-bar {
+  grid-column: 1 / -1;
+  background-color: var(--bg-base);
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-md);
+  z-index: 100;
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-highlight);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-elevated);
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Common Components */
+.btn-primary {
+  background-color: var(--brand-primary);
+  color: #000;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-hover);
+  transform: scale(1.05);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0.8rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text-primary);
+  background-color: var(--bg-highlight);
+}
+
+.video-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm);
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.video-card:hover {
+  background-color: var(--bg-elevated);
+}
+
+.video-thumbnail {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  margin-bottom: var(--spacing-xs);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--glass);
+  border-top: 4px solid var(--brand-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@media (max-width: 768px) {
+  .mobile-nav {
+    display: flex !important;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .main-view {
+    padding-bottom: 80px;
+  }
+
+  .player-bar {
+    bottom: 60px;
+    height: 70px;
+    padding: 0 10px;
+  }
+
+  .extra-controls {
+    display: none;
+  }
+
+  .song-info {
+    width: 60%;
+  }
+}
+
+/* Interactive Elements */
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+
+.hover-scale:hover {
+  transform: scale(1.2);
+  color: var(--text-primary) !important;
+}
+
+.progress-container:hover .progress-handle {
+  opacity: 1 !important;
+}
+
+.progress-container:hover div:first-child {
+  background-color: var(--brand-primary) !important;
+}
+
+.volume-slider:hover div {
+  background-color: var(--brand-primary) !important;
+}
+
+.expanded-player {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.expanded-player::-webkit-scrollbar {
+  display: none;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95);
+  animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modalScaleIn {
+  to {
+    transform: scale(1);
+  }
+}
