@@ -3,7 +3,7 @@ import { Search, Home, Library, Download, Settings, Play, Pause, SkipBack, SkipF
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://musicpy-ohim.onrender.com';
 
 const DEFAULT_COVER = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1DB954"/><stop offset="100%" stop-color="#191414"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/><text x="100" y="115" text-anchor="middle" font-size="80" fill="white" opacity="0.5">\u266A</text></svg>')}`;
 
