@@ -81,10 +81,11 @@ app.get('/api/proxy-download', async (req, res) => {
     }
 });
 
-// SPA catch-all — serve index.html for any non-API route
-app.get('*', (req, res) => {
-    res.sendFile(join(__dirname, '..', 'dist', 'index.html'));
+// SPA catch-all - serve index.html for any non-API route
+app.get('/*splat', (req, res, next) => {
+  res.sendFile(join(__dirname, '..', 'dist', 'index.html'));
 });
+    
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
