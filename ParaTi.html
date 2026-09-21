@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxia de Flores Amarillas 3D 🌻</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Montserrat:wght@300;400;600&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050505;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
+            animation: fadeOut 4s forwards;
+            animation-delay: 3s;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Modal Carta */
+        .modal {
+            display: none;n;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .letter-card {
+            background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
+            color: #333;
+            padding: 35px 30px;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(255, 235, 59, 0.5), 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            transform: scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #fbc02d;
+        }
+
+        .modal.show .letter-card {
+            transform: scale(1);
+        }
+
+        .letter-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2.6rem;
+            color: #f57f17;
+            margin-bottom: 15px;
+        }
+
+        .letter-body {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #424242;
+            margin-bottom: 20px;
+        }
+
+        .letter-footer {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: #f57f17;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .btn-close {
+            background: linear-gradient(45deg, #fbc02d, #f57f17);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 127, 23, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 127, 23, 0.6);
+        }
+    </style>
+    <!-- Import Maps para Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="info">Arrastra para girar la galaxia. Usa la rueda para hacer zoom. Haz clic en las flores.</div>
+
+    <!-- Modal con Carta -->
+    <div class="modal" id="loveModal">
+        <div class="letter-card">
+            <h2 class="letter-title" id="modalTitle">Hola</h2>
+            <p class="letter-body" id="modalBody">Mensaje</p>
+            <div class="letter-footer">Con cariño 🌻</div>
+            <button class="btn-close" onclick="closeLetter()">Cerrar ✨</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Escena, Cámara y Renderizador
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050505, 0.002);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 30, 100);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 400;
+        controls.minDistance = 20;
+
+        function createFlowerTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.translate(128, 128);
+            
+            ctx.fillStyle = '#ffb300';
+            for(let i=0; i<16; i++) {
+                ctx.rotate((Math.PI * 2) / 16);
+                ctx.beginPath();
+                ctx.ellipse(0, 50, 15, 60, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#ffea00';
+            for(let i=0; i<16; i++) {
+                ctx.rotate((Math.PI * 2) / 16 + 0.2);
+                ctx.beginPath();
+                ctx.ellipse(0, 45, 12, 50, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.fillStyle = '#4e342e';
+            ctx.beginPath();
+            ctx.arc(0, 0, 35, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#3e2723';
+            for(let i=0; i<20; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random()*40-20, Math.random()*40-20, 2, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createTextTexture(text, fontSize=40, color='#ffff00') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.font = `bold ${fontSize}px Montserrat, sans-serif`;
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            ctx.shadowColor = 'rgba(255, 235, 59, 0.8)';
+            ctx.shadowBlur = 15;
+            
+            ctx.fillText(text, 256, 64);
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        // Galaxia
+        const particleCount = 15000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        const color1 = new THREE.Color(0xffeb3b); 
+        const color2 = new THREE.Color(0xff9800); 
+        const color3 = new THREE.Color(0xffffff); 
+
+        for (let i = 0; i < particleCount; i++) {
+            const radius = Math.random() * 200;
+            const branchAngle = (i % 3) * ((Math.PI * 2) / 3);
+            const spinAngle = radius * 0.05;
+            
+            const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 20;
+            const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 20;
+            const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 20;
+
+            positions[i * 3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+            positions[i * 3 + 1] = randomY; 
+            positions[i * 3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+            const mixedColor = color1.clone().lerp(color2, Math.random());
+            if (radius > 100) mixedColor.lerp(color3, Math.random() * 0.5);
+            
+            colors[i * 3] = mixedColor.r;
+            colors[i * 3 + 1] = mixedColor.g;
+            colors[i * 3 + 2] = mixedColor.b;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 1.5,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.8,
+            depthWrite: false
+        });
+
+        const galaxy = new THREE.Points(geometry, material);
+        scene.add(galaxy);
+
+        // Centro
+        function createStarTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.font = '150px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = '#ffea00';
+            ctx.shadowBlur = 40;
+            ctx.fillText('✨', 128, 135);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        const centerGroup = new THREE.Group();
+        
+        const centerMaterial = new THREE.SpriteMaterial({ map: createStarTexture(), color: 0xffffff, transparent: true });
+        const centerSprite = new THREE.Sprite(centerMaterial);
+        centerSprite.scale.set(40, 40, 1);
+        centerSprite.userData = { title: "¡Hola! ✨", msg: "Me encanta el tiempo que pasamos juntos y conocerte un poco más cada día." };
+        centerGroup.add(centerSprite);
+
+        const mainTextMaterial = new THREE.SpriteMaterial({ map: createTextTexture("Para Ti", 70, '#ffffff'), transparent: true });
+        const mainTextSprite = new THREE.Sprite(mainTextMaterial);
+        mainTextSprite.scale.set(80, 20, 1);
+        mainTextSprite.position.y = -25;
+        centerGroup.add(mainTextSprite);
+
+        scene.add(centerGroup);
+
+        // Flores interactivas
+        const flowerData = [
+            { label: "Me gusta tu sonrisa 😊", msg: "Tienes una forma muy linda de iluminar el momento." },
+            { label: "Eres muy especial ✨", msg: "Me gusta mucho descubrir las cosas que te hacen única." },
+            { label: "Qué bonita casualidad 🌟", msg: "Me alegra mucho que hayamos coincidido." },
+            { label: "Me haces sonreír 💛", msg: "Es inevitable sonreír cuando hablo contigo." },
+            { label: "Pienso en ti 💭", msg: "A veces me descubro pensando en nuestra última charla." },
+            { label: "Me encanta hablar contigo 💬", msg: "Podría pasar horas escuchándote." },
+            { label: "Con ganas de verte 👀", msg: "Siempre me quedo con ganas de compartir más tiempo contigo." },
+            { label: "Eres increíble 🌻", msg: "Me gusta mucho lo que voy conociendo de ti." }
+        ];
+
+        const flowerTexture = createFlowerTexture();
+        const interactiveObjects = [centerSprite];
+        const flowers = [];
+
+        flowerData.forEach((data, i) => {
+            const angle = (i / flowerData.length) * Math.PI * 2;
+            const radius = 60 + Math.random() * 20;
+            const x = Math.cos(angle) * radius;
+            const z = Math.sin(angle) * radius;
+            const y = (Math.random() - 0.5) * 40;
+
+            const group = new THREE.Group();
+            group.position.set(x, y, z);
+
+            const fMat = new THREE.SpriteMaterial({ map: flowerTexture, transparent: true });
+            const flower = new THREE.Sprite(fMat);
+            flower.scale.set(15, 15, 1);
+            flower.userData = { title: data.label, msg: data.msg, originalScale: 15 };
+            group.add(flower);
+            interactiveObjects.push(flower);
+
+            const tMat = new THREE.SpriteMaterial({ map: createTextTexture(data.label, 30), transparent: true });
+            const text = new THREE.Sprite(tMat);
+            text.scale.set(40, 10, 1);
+            text.position.y = -12;
+            group.add(text);
+
+            scene.add(group);
+            flowers.push({ group, angle, speed: 0.002 + Math.random() * 0.002, radius, yOffset: y });
+        });
+
+        // Interacción
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let hoveredObject = null;
+
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactiveObjects);
+
+            if (intersects.length > 0) {
+                document.body.style.cursor = 'pointer';
+                if (hoveredObject !== intersects[0].object) {
+                    if (hoveredObject && hoveredObject.userData.originalScale) hoveredObject.scale.setScalar(hoveredObject.userData.originalScale);
+                    hoveredObject = intersects[0].object;
+                    if (hoveredObject.userData.originalScale) hoveredObject.scale.setScalar(hoveredObject.userData.originalScale * 1.3);
+                }
+            } else {
+                document.body.style.cursor = 'default';
+                if (hoveredObject && hoveredObject.userData.originalScale) {
+                    hoveredObject.scale.setScalar(hoveredObject.userData.originalScale);
+                }
+                hoveredObject = null;
+            }
+        });
+
+        window.addEventListener('click', () => {
+            if (hoveredObject) {
+                window.openLetter(hoveredObject.userData.title, hoveredObject.userData.msg);
+            }
+        });
+
+        window.openLetter = function(title, msg) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerHTML = msg;
+            document.getElementById('loveModal').classList.add('show');
+        };
+
+        window.closeLetter = function() {
+            document.getElementById('loveModal').classList.remove('show');
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+
+            galaxy.rotation.y = time * 0.05;
+
+            const scale = 40 + Math.sin(time * 3) * 3;
+            centerSprite.scale.set(scale, scale, 1);
+            centerGroup.position.y = Math.sin(time * 2) * 2;
+
+            flowers.forEach(f => {
+                f.angle += f.speed;
+                f.group.position.x = Math.cos(f.angle) * f.radius;
+                f.group.position.z = Math.sin(f.angle) * f.radius;
+                f.group.position.y = f.yOffset + Math.sin(time * 2 + f.angle) * 5;
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
